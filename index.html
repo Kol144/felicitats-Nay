@@ -88,6 +88,7 @@
     .gallery-tile { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 5; overflow: hidden; padding: 0; border: 1px solid #555; border-radius: 9px; background: #151515; cursor: pointer; isolation: isolate; transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; }
     .gallery-tile:hover { transform: translateY(-4px); border-color: #aaa; box-shadow: 0 12px 34px #0009; }
     .gallery-tile img { position: absolute; inset: -12px; width: calc(100% + 24px); height: calc(100% + 24px); object-fit: cover; filter: blur(17px) brightness(.6); transform: scale(1.08); }
+    .gallery-tile video { position: absolute; inset: -12px; width: calc(100% + 24px); height: calc(100% + 24px); object-fit: cover; filter: blur(17px) brightness(.6); transform: scale(1.08); pointer-events: none; }
     .text-memory-tile img { filter: blur(17px) brightness(.62); }
     .gallery-tile::after { content: ''; position: absolute; inset: 0; background: linear-gradient(145deg, #fff1, transparent 46%, #0007); }
     .gallery-question { position: relative; z-index: 1; color: #fff; font-size: clamp(3.5rem, 11vw, 6rem); font-weight: 400; -webkit-text-stroke: 0; text-shadow: 0 0 .03em currentColor, 0 0 .06em currentColor, 0 3px 24px #000c; transition: transform .25s ease; }
@@ -251,7 +252,8 @@
       { src: 'assets/VID_20261014_133638_988.mp4', poster: 'assets/especial-portada.jpg', label: 'Vídeo especial 5' },
       { src: 'assets/VID_20261014_133214_384.mp4', poster: 'assets/especial-portada.jpg', label: 'Vídeo especial 6' },
       { src: 'assets/VID_20261014_133211_931.mp4', poster: 'assets/especial-portada.jpg', label: 'Vídeo especial 7' },
-      { src: 'assets/VID_20261014_133209_269.mp4', poster: 'assets/especial-portada.jpg', label: 'Vídeo especial 8' }
+      { src: 'assets/VID_20261014_133209_269.mp4', poster: 'assets/especial-portada.jpg', label: 'Vídeo especial 8' },
+      { src: 'assets/WhatsApp Video 2026-10-14 at 23.30.24.mp4', poster: 'assets/especial-portada.jpg', label: 'Vídeo especial 9' }
     ];
     let lastPhotoTrigger = null;
     gallery.innerHTML = photos.map((src, index) => `
@@ -269,7 +271,7 @@
       </button>`).join('');
     specialGrid.innerHTML = specialVideos.map(video => `
       <button class="gallery-tile" type="button" aria-label="Revelar ${video.label}" data-special-video="${video.src}" data-special-poster="${video.poster}">
-        <img src="${video.poster}" alt="" loading="lazy"><span class="gallery-question" aria-hidden="true">?</span>
+        <video src="${video.src}" poster="${video.poster}" muted loop autoplay playsinline preload="none" aria-hidden="true" tabindex="-1"></video><span class="gallery-question" aria-hidden="true">?</span>
       </button>`).join('');
 
     function closePhoto() {
