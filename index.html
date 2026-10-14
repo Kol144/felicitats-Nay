@@ -35,17 +35,28 @@
     .welcome-card { min-height: min(570px, 82svh); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: clamp(34px, 8vh, 66px) 24px 25px; overflow: hidden; transform: translateY(34px) scale(.94); opacity: 0; }
     .welcome-layer.open .welcome-card { animation: reveal .7s cubic-bezier(.2,.8,.2,1) forwards; }
     @keyframes reveal { to { transform: translateY(0) scale(1); opacity: 1; } }
-    .cake { position: relative; z-index: 1; font-size: clamp(3rem, 10vw, 4.5rem); line-height: 1; filter: grayscale(1); }
+    .cake { position: relative; z-index: 1; font-size: clamp(3rem, 10vw, 4.5rem); line-height: 1; }
     .welcome-card h2 { position: relative; z-index: 1; margin: 22px 0 0; font-size: clamp(1.35rem, 5vw, 1.9rem); font-weight: 600; }
     .continue { position: relative; z-index: 2; width: min(100%, 250px); margin-top: auto; }
-    .confetti { position: fixed; inset: -20px 0 0; z-index: 0; overflow: hidden; pointer-events: none; }
-    .confetti i { position: absolute; top: -20px; left: var(--x); width: var(--w); height: var(--h); background: var(--c); opacity: .9; transform: rotate(var(--r)); animation: fall var(--d) linear var(--delay) infinite; }
+    .confetti { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .confetti i { position: absolute; top: 50%; left: 50%; width: var(--w); height: var(--h); background: var(--c); opacity: 0; transform: translate(-50%, -50%) rotate(var(--r)); animation: burst 3s cubic-bezier(.12,.6,.35,1) var(--delay) both; }
     .confetti i:nth-child(3n) { border-radius: 50%; }
     .confetti i:nth-child(4n) { width: 3px; }
-    @keyframes fall { to { transform: translate3d(var(--drift), 110svh, 0) rotate(900deg); } }
-    .after { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; background: #080808; opacity: 0; visibility: hidden; transition: .4s; }
+    @keyframes burst { 0% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--r)) scale(.45); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--spin)) scale(1); } }
+    .after { position: fixed; inset: 0; overflow-y: auto; padding: clamp(34px, 8vh, 76px) 24px; background: #080808; opacity: 0; visibility: hidden; transition: opacity .4s ease, visibility .4s; }
     .after.show { opacity: 1; visibility: visible; }
-    .after p { color: #888; }
+    .memories { width: min(100%, 720px); margin: 0 auto; }
+    .memories h2 { margin: 0 0 30px; text-align: center; font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 500; }
+    .accordion { border-top: 1px solid #555; }
+    .accordion:last-child { border-bottom: 1px solid #555; }
+    .accordion summary { position: relative; list-style: none; padding: 22px 42px 22px 4px; cursor: pointer; font-size: clamp(1rem, 3vw, 1.2rem); }
+    .accordion summary::-webkit-details-marker { display: none; }
+    .accordion summary::after { content: '+'; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #bbb; font-size: 1.5rem; transition: transform .25s ease; }
+    .accordion[open] summary::after { transform: translateY(-50%) rotate(45deg); }
+    .accordion-content { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .35s ease, opacity .3s ease; }
+    .accordion[open] .accordion-content { grid-template-rows: 1fr; opacity: 1; }
+    .accordion-content > div { overflow: hidden; }
+    .accordion-content p { margin: 0; padding: 0 8px 22px 4px; color: #aaa; font-size: .95rem; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
   </style>
 </head>
@@ -56,7 +67,7 @@
       <h1 id="login-title">Una sorpresa para ti</h1>
       <p>Introduce la contraseña para entrar</p>
       <form id="login-form">
-        <input class="password" id="password" type="password" placeholder="Contraseña" aria-label="Contraseña" autocomplete="off" required>
+        <input class="password" id="password" type="text" placeholder="Contraseña" aria-label="Contraseña" autocomplete="off" required>
         <button class="enter" type="submit">Entrar</button>
         <p class="error" id="error" aria-live="polite"></p>
       </form>
@@ -75,7 +86,14 @@
       <button class="continue" id="continue" type="button">Continuar</button>
     </div>
   </section>
-  <section class="after" id="after" aria-live="polite"><p>Lo mejor está por venir.</p></section>
+  <section class="after" id="after" aria-label="Recuerdos">
+    <div class="memories">
+      <h2>Un rinconcito para ti</h2>
+      <details class="accordion"><summary>Cosas que me recuerdan a ti</summary><div class="accordion-content"><div><p>Pequeñas cosas que, de alguna manera, siempre me llevan a ti.</p></div></div></details>
+      <details class="accordion"><summary>Cosas que me gustan de ti</summary><div class="accordion-content"><div><p>Esas cosas que te hacen ser tú y que me alegran los días.</p></div></div></details>
+      <details class="accordion"><summary>Galería de recuerdos</summary><div class="accordion-content"><div><p>Nuestros momentos favoritos, guardados en un mismo lugar.</p></div></div></details>
+    </div>
+  </section>
   <script>
     const stage = document.querySelector('#stage');
     const hint = document.querySelector('#hint-layer');
@@ -113,18 +131,20 @@
     function makeConfetti() {
       const canvas = document.querySelector('#confetti');
       if (canvas.childElementCount) return;
-      const colors = ['#fff', '#d9d9d9', '#999', '#555', '#f2f2f2'];
-      const count = 440;
+      const colors = ['#ff4d6d', '#ff9f1c', '#ffd60a', '#2ec4b6', '#3a86ff', '#8338ec', '#ff70a6', '#fff'];
+      const count = 520;
       for (let i = 0; i < count; i++) {
         const piece = document.createElement('i');
-        piece.style.setProperty('--x', `${Math.random() * 100}%`);
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 35 + Math.random() * 75;
+        piece.style.setProperty('--dx', `${Math.cos(angle) * distance}vw`);
+        piece.style.setProperty('--dy', `${Math.sin(angle) * distance}vh`);
         piece.style.setProperty('--w', `${3 + Math.random() * 7}px`);
         piece.style.setProperty('--h', `${6 + Math.random() * 12}px`);
-        piece.style.setProperty('--c', colors[i % colors.length]);
+        piece.style.setProperty('--c', colors[Math.floor(Math.random() * colors.length)]);
         piece.style.setProperty('--r', `${Math.random() * 360}deg`);
-        piece.style.setProperty('--d', `${2.8 + Math.random() * 4}s`);
-        piece.style.setProperty('--delay', `${-Math.random() * 6}s`);
-        piece.style.setProperty('--drift', `${Math.random() * 180 - 90}px`);
+        piece.style.setProperty('--spin', `${Math.random() * 1100 - 550}deg`);
+        piece.style.setProperty('--delay', `${Math.random() * .16}s`);
         canvas.appendChild(piece);
       }
     }
