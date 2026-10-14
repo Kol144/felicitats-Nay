@@ -140,7 +140,7 @@
 
     const songList = document.querySelector('#song-list');
     songList.innerHTML = songs.map((song, index) => `
-      <article class="song-card">
+      <article class="song-card" style="--album-color: ${song.color}">
         <a class="song-link" href="https://open.spotify.com/track/${song.id}" target="_blank" rel="noopener noreferrer" aria-label="Abrir ${song.title} en Spotify"></a>
         <img class="song-cover" src="${song.cover}" alt="Portada de ${song.title}" loading="lazy">
         <div class="song-info"><strong>${index + 1}. ${song.title}</strong><span>${song.artist}</span></div>
