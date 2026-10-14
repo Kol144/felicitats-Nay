@@ -70,6 +70,25 @@
     .preview-button:hover:not(:disabled) { background: #fff; transform: scale(1.05); }
     .preview-button:disabled { background: #222; color: #777; cursor: not-allowed; }
     .preview-time { position: relative; z-index: 2; color: #999; font-size: .72rem; pointer-events: none; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; padding: 0 4px 24px; }
+    .gallery-tile { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 5; overflow: hidden; padding: 0; border: 1px solid #555; border-radius: 9px; background: #151515; cursor: pointer; isolation: isolate; transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; }
+    .gallery-tile:hover { transform: translateY(-4px); border-color: #aaa; box-shadow: 0 12px 34px #0009; }
+    .gallery-tile img { position: absolute; inset: -12px; width: calc(100% + 24px); height: calc(100% + 24px); object-fit: cover; filter: blur(17px) brightness(.6); transform: scale(1.08); }
+    .gallery-tile::after { content: ''; position: absolute; inset: 0; background: linear-gradient(145deg, #fff1, transparent 46%, #0007); }
+    .gallery-question { position: relative; z-index: 1; color: #fff; font-size: clamp(3.5rem, 11vw, 6rem); font-weight: 700; text-shadow: 0 3px 24px #000c; transition: transform .25s ease; }
+    .gallery-tile:hover .gallery-question { transform: scale(1.12) rotate(-5deg); }
+    .photo-viewer { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 4vh 4vw; opacity: 0; visibility: hidden; transition: opacity .32s ease, visibility .32s; perspective: 1400px; }
+    .photo-viewer.open { opacity: 1; visibility: visible; }
+    .photo-scrim { position: absolute; inset: 0; border: 0; background: #050505bb; backdrop-filter: blur(18px); cursor: zoom-out; }
+    .photo-frame { --tilt-x: 0deg; --tilt-y: 0deg; position: relative; display: grid; place-items: center; width: min(92vw, 900px); height: min(90svh, 1000px); overflow: hidden; padding: 12px; border: 1px solid #ffffff88; border-radius: 14px; background: linear-gradient(135deg, #f8dc8a, #e6f5ff 20%, #d7b0ff 42%, #fff1c5 64%, #b9e7ff 83%, #f6d4ea); box-shadow: 0 30px 100px #000b, inset 0 0 0 2px #fff5; transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y)); transform-style: preserve-3d; transition: transform .16s ease-out; }
+    .photo-viewer.open .photo-frame { animation: card-flip .7s cubic-bezier(.18,.78,.25,1) both; }
+    .photo-frame::before { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(115deg, transparent 25%, #fff9 45%, #fff2 52%, transparent 72%); opacity: var(--glare, .16); transform: translateX(var(--shine-x, -35%)); mix-blend-mode: screen; transition: opacity .2s ease; }
+    .photo-frame::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at var(--shine-at, 50% 35%), #fff5, transparent 54%); mix-blend-mode: screen; }
+    .photo-frame img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 7px; box-shadow: 0 8px 30px #0008; }
+    .photo-close { position: absolute; z-index: 3; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); width: 44px; height: 44px; border: 1px solid #fff8; border-radius: 50%; background: #111d; color: white; font-size: 1.6rem; cursor: pointer; }
+    @keyframes card-flip { 0% { opacity: 0; transform: rotateY(78deg) rotateX(12deg) scale(.72); } 65% { opacity: 1; transform: rotateY(-8deg) rotateX(-3deg) scale(1.015); } 100% { opacity: 1; transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) scale(1); } }
+    @media (max-width: 520px) { .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .photo-viewer { padding: 3vh 3vw; } .photo-frame { width: 94vw; height: 92svh; padding: 8px; border-radius: 12px; } }
+    @media (prefers-reduced-motion: reduce) { .photo-viewer.open .photo-frame { animation: none; } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
   </style>
 </head>
@@ -104,9 +123,14 @@
       <h2>Un rinconcito para ti</h2>
       <details class="accordion"><summary>Cosas que me recuerdan a ti</summary><div class="accordion-content"><div><p>Pequeñas cosas que, de alguna manera, siempre me llevan a ti.</p></div></div></details>
       <details class="accordion"><summary>Cosas que me gustan de ti</summary><div class="accordion-content"><div></div></div></details>
-      <details class="accordion"><summary>Galería de recuerdos</summary><div class="accordion-content"><div><p>Nuestros momentos favoritos, guardados en un mismo lugar.</p></div></div></details>
+      <details class="accordion"><summary>Galería de recuerdos</summary><div class="accordion-content"><div><div class="gallery-grid" id="gallery-grid" aria-label="Galería de recuerdos"></div></div></div></details>
       <details class="accordion"><summary>Canciones que me recuerdan a ti</summary><div class="accordion-content"><div><div class="song-list" id="song-list"></div></div></div></details>
     </div>
+  </section>
+  <section class="photo-viewer" id="photo-viewer" role="dialog" aria-modal="true" aria-label="Recuerdo ampliado">
+    <button class="photo-scrim" type="button" aria-label="Cerrar fotografía"></button>
+    <div class="photo-frame" id="photo-frame"><img id="photo-large" alt="Recuerdo ampliado"></div>
+    <button class="photo-close" type="button" aria-label="Cerrar">×</button>
   </section>
   <script>
     const stage = document.querySelector('#stage');
@@ -117,6 +141,64 @@
     const error = document.querySelector('#error');
     const welcome = document.querySelector('#welcome-layer');
     const after = document.querySelector('#after');
+
+    const memories = [
+      'IMG_20260810_200916_083.webp',
+      'IMG_20260811_105834_557.png',
+      'Screenshot_20240906_205809_One UI Home.png',
+      'watermark-2b593287e69718b49ef575b52271d7e6_0.jpeg',
+      'motion_photo_7010379507497014062.jpg',
+      'motion_photo_1461269711826363111.jpg',
+      'Screenshot_20260926_214254_TikTok.png',
+      '20260810_194128.jpg',
+      '20260810_194129.jpg',
+      '20260811_155205.jpg',
+      '20240821_134715.jpg',
+      'Screenshot_20240902_010729_One UI Home.png'
+    ];
+    const gallery = document.querySelector('#gallery-grid');
+    const viewer = document.querySelector('#photo-viewer');
+    const photoFrame = document.querySelector('#photo-frame');
+    const largePhoto = document.querySelector('#photo-large');
+    let lastPhotoTrigger = null;
+    gallery.innerHTML = memories.map((src, index) => `
+      <button class="gallery-tile" type="button" aria-label="Revelar recuerdo ${index + 1}" data-photo="${src}">
+        <img src="${src}" alt="" loading="lazy"><span class="gallery-question" aria-hidden="true">?</span>
+      </button>`).join('');
+
+    function closePhoto() {
+      viewer.classList.remove('open');
+      largePhoto.removeAttribute('src');
+      if (lastPhotoTrigger) lastPhotoTrigger.focus();
+    }
+    gallery.addEventListener('click', event => {
+      const tile = event.target.closest('.gallery-tile');
+      if (!tile) return;
+      lastPhotoTrigger = tile;
+      largePhoto.src = tile.dataset.photo;
+      largePhoto.alt = `Recuerdo ${Array.from(gallery.children).indexOf(tile) + 1}`;
+      viewer.classList.add('open');
+      viewer.querySelector('.photo-close').focus();
+    });
+    viewer.querySelectorAll('.photo-scrim, .photo-close').forEach(button => button.addEventListener('click', closePhoto));
+    viewer.addEventListener('pointermove', event => {
+      const bounds = photoFrame.getBoundingClientRect();
+      const x = (event.clientX - bounds.left) / bounds.width;
+      const y = (event.clientY - bounds.top) / bounds.height;
+      photoFrame.style.setProperty('--tilt-x', `${(0.5 - y) * 12}deg`);
+      photoFrame.style.setProperty('--tilt-y', `${(x - 0.5) * 14}deg`);
+      photoFrame.style.setProperty('--shine-at', `${x * 100}% ${y * 100}%`);
+      photoFrame.style.setProperty('--shine-x', `${(x - 0.5) * 110}%`);
+      photoFrame.style.setProperty('--glare', String(.12 + Math.abs(x - .5) * .7));
+    });
+    viewer.addEventListener('pointerleave', () => {
+      photoFrame.style.setProperty('--tilt-x', '0deg');
+      photoFrame.style.setProperty('--tilt-y', '0deg');
+      photoFrame.style.setProperty('--glare', '.16');
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && viewer.classList.contains('open')) closePhoto();
+    });
 
     const songs = [
       { title: 'Life is a Highway', artist: 'Rascal Flatts', id: '2Fs18NaCDuluPG1DHGw1XG', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02aa6b03f85a0f2cb16e88ec0c', color: '#005a70', preview: 'https://p.scdn.co/mp3-preview/a6cbe30a1f5e86159a88e98f40712f1b5a0bde57' },
