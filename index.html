@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080808">
   <title>Una sorpresa para ti</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
   <style>
-    @font-face { font-family: Horizon; src: url('Horizon.otf') format('opentype'); font-display: swap; font-weight: 400; }
-    :root { color-scheme: dark; font-synthesis: none; font-family: Horizon, Arial, Helvetica, sans-serif; -webkit-text-stroke: .05em currentColor; text-shadow: none; }
-    .login h1, .hint-card p, .welcome-card h2, .memories h2, .accordion summary { -webkit-text-stroke: .05em currentColor; text-shadow: none; }
+    :root { color-scheme: dark; font-synthesis: none; font-family: Bangers, Arial, Helvetica, sans-serif; -webkit-text-stroke: 0; text-shadow: none; }
+    .login h1, .hint-card p, .welcome-card h2, .memories h2, .accordion summary { -webkit-text-stroke: 0; text-shadow: none; }
     * { box-sizing: border-box; }
     body { margin: 0; min-height: 100svh; overflow: hidden; background: #080808; color: #f7f7f7; }
     button, input { font: inherit; }
@@ -77,7 +79,7 @@
     .gallery-tile img { position: absolute; inset: -12px; width: calc(100% + 24px); height: calc(100% + 24px); object-fit: cover; filter: blur(17px) brightness(.6); transform: scale(1.08); }
     .text-memory-tile img { filter: blur(17px) brightness(.62); }
     .gallery-tile::after { content: ''; position: absolute; inset: 0; background: linear-gradient(145deg, #fff1, transparent 46%, #0007); }
-    .gallery-question { position: relative; z-index: 1; color: #fff; font-size: clamp(3.5rem, 11vw, 6rem); font-weight: 400; -webkit-text-stroke: .04em currentColor; text-shadow: 0 0 .03em currentColor, 0 0 .06em currentColor, 0 3px 24px #000c; transition: transform .25s ease; }
+    .gallery-question { position: relative; z-index: 1; color: #fff; font-size: clamp(3.5rem, 11vw, 6rem); font-weight: 400; -webkit-text-stroke: 0; text-shadow: 0 0 .03em currentColor, 0 0 .06em currentColor, 0 3px 24px #000c; transition: transform .25s ease; }
     .gallery-tile:hover .gallery-question { transform: scale(1.12) rotate(-5deg); }
     .text-memory-tile { background: #171717; }
     .text-memory-tile::before { content: ''; position: absolute; inset: -15px; background: linear-gradient(135deg, #fafafa55, #81818166 45%, #292929); filter: blur(18px); transform: scale(1.08); }
@@ -91,8 +93,8 @@
     .photo-frame::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at var(--shine-at, 50% 35%), #fff5, transparent 54%); mix-blend-mode: screen; }
     .photo-frame img { display: block; width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 7px; box-shadow: 0 8px 30px #0008; }
     .photo-frame [hidden] { display: none !important; }
-    .memory-message { display: grid; width: 100%; height: 100%; place-items: center; padding: clamp(28px, 8vw, 100px); color: #171717; text-align: center; font-family: Horizon, Arial, sans-serif; font-size: clamp(2rem, 6vw, 4.6rem); font-weight: 400; line-height: 1.08; overflow-wrap: anywhere; text-shadow: 0 2px 0 #fff8; }
-    .memory-message { -webkit-text-stroke: .05em currentColor; text-shadow: 0 2px 0 #fff8; }
+    .memory-message { display: grid; width: 100%; height: 100%; place-items: center; padding: clamp(28px, 8vw, 100px); color: #171717; text-align: center; font-family: Bangers, Arial, sans-serif; font-size: clamp(2rem, 6vw, 4.6rem); font-weight: 400; line-height: 1.08; overflow-wrap: anywhere; text-shadow: 0 2px 0 #fff8; }
+    .memory-message { -webkit-text-stroke: 0; text-shadow: none; }
     .photo-frame.has-memory-image .memory-message { min-height: 76px; height: auto; padding: 14px 18px; border-radius: 7px; background: #f8f8f8ed; font-size: clamp(1.3rem, 4vw, 2rem); text-shadow: none; }
     .photo-close { position: absolute; z-index: 3; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); width: 44px; height: 44px; border: 1px solid #fff8; border-radius: 50%; background: #111d; color: white; font-size: 1.6rem; cursor: pointer; }
     @keyframes card-flip { 0% { opacity: 0; transform: rotateY(78deg) rotateX(12deg) scale(.72); } 65% { opacity: 1; transform: rotateY(-8deg) rotateX(-3deg) scale(1.015); } 100% { opacity: 1; transform: rotateX(0) rotateY(0) scale(1); } }
