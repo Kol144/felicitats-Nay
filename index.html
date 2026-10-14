@@ -7,8 +7,8 @@
   <title>Una sorpresa para ti</title>
   <style>
     @font-face { font-family: Horizon; src: url('Horizon.otf') format('opentype'); font-display: swap; }
-    :root { color-scheme: dark; font-family: Horizon, Arial, Helvetica, sans-serif; -webkit-text-stroke: .08em currentColor; text-shadow: 0 0 .06em currentColor, 0 0 .12em currentColor; }
-    .login h1, .hint-card p, .welcome-card h2, .memories h2, .accordion summary { -webkit-text-stroke: .08em currentColor; text-shadow: 0 0 .03em currentColor, 0 0 .06em currentColor; }
+    :root { color-scheme: dark; font-family: Horizon, Arial, Helvetica, sans-serif; -webkit-text-stroke: .025em currentColor; text-shadow: 0 0 .01em currentColor, 0 0 .025em currentColor; }
+    .login h1, .hint-card p, .welcome-card h2, .memories h2, .accordion summary { -webkit-text-stroke: .025em currentColor; text-shadow: 0 0 .01em currentColor, 0 0 .02em currentColor; }
     * { box-sizing: border-box; }
     body { margin: 0; min-height: 100svh; overflow: hidden; background: #080808; color: #f7f7f7; }
     button, input { font: inherit; }
@@ -92,7 +92,7 @@
     .photo-frame img { display: block; width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 7px; box-shadow: 0 8px 30px #0008; }
     .photo-frame [hidden] { display: none !important; }
     .memory-message { display: grid; width: 100%; height: 100%; place-items: center; padding: clamp(28px, 8vw, 100px); color: #171717; text-align: center; font-family: Horizon, Arial, sans-serif; font-size: clamp(2rem, 6vw, 4.6rem); font-weight: 700; line-height: 1.08; overflow-wrap: anywhere; text-shadow: 0 2px 0 #fff8; }
-    .memory-message { -webkit-text-stroke: .08em currentColor; text-shadow: 0 0 .03em currentColor, 0 0 .06em currentColor, 0 2px 0 #fff8; }
+    .memory-message { -webkit-text-stroke: .025em currentColor; text-shadow: 0 0 .01em currentColor, 0 0 .02em currentColor, 0 2px 0 #fff8; }
     .photo-frame.has-memory-image .memory-message { min-height: 76px; height: auto; padding: 14px 18px; border-radius: 7px; background: #f8f8f8ed; font-size: clamp(1.3rem, 4vw, 2rem); text-shadow: none; }
     .photo-close { position: absolute; z-index: 3; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); width: 44px; height: 44px; border: 1px solid #fff8; border-radius: 50%; background: #111d; color: white; font-size: 1.6rem; cursor: pointer; }
     @keyframes card-flip { 0% { opacity: 0; transform: rotateY(78deg) rotateX(12deg) scale(.72); } 65% { opacity: 1; transform: rotateY(-8deg) rotateX(-3deg) scale(1.015); } 100% { opacity: 1; transform: rotateX(0) rotateY(0) scale(1); } }
