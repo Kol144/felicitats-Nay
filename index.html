@@ -211,8 +211,10 @@
       'Dedicas parte de tu tiempo y atención a la gente que quieres',
       'tus outfits'
     ];
-    const specialVideo = 'assets/especial.mp4';
-    const specialPoster = 'assets/especial-portada.jpg';
+    const specialVideos = [
+      { src: 'assets/especial.mp4', poster: 'assets/especial-portada.jpg', label: 'Vídeo especial' },
+      { src: 'assets/especial-whatsapp.mp4', poster: 'assets/especial-whatsapp-portada.jpg', label: 'Vídeo especial 2' }
+    ];
     let lastPhotoTrigger = null;
     gallery.innerHTML = photos.map((src, index) => `
       <button class="gallery-tile" type="button" aria-label="Revelar recuerdo ${index + 1}" data-photo="${src}">
@@ -227,10 +229,10 @@
       <button class="gallery-tile text-memory-tile" type="button" aria-label="Revelar: ${like}" data-like-index="${index}">
         <span class="gallery-question" aria-hidden="true">?</span>
       </button>`).join('');
-    specialGrid.innerHTML = `
-      <button class="gallery-tile" type="button" aria-label="Revelar vídeo especial">
-        <img src="${specialPoster}" alt="" loading="lazy"><span class="gallery-question" aria-hidden="true">?</span>
-      </button>`;
+    specialGrid.innerHTML = specialVideos.map(video => `
+      <button class="gallery-tile" type="button" aria-label="Revelar ${video.label}" data-special-video="${video.src}" data-special-poster="${video.poster}">
+        <img src="${video.poster}" alt="" loading="lazy"><span class="gallery-question" aria-hidden="true">?</span>
+      </button>`).join('');
 
     function closePhoto() {
       viewer.classList.remove('open');
@@ -290,14 +292,16 @@
       viewer.classList.add('open');
       viewer.querySelector('.photo-close').focus();
     });
-    specialGrid.addEventListener('click', () => {
-      lastPhotoTrigger = specialGrid.querySelector('.gallery-tile');
+    specialGrid.addEventListener('click', event => {
+      const tile = event.target.closest('[data-special-video]');
+      if (!tile) return;
+      lastPhotoTrigger = tile;
       largePhoto.removeAttribute('src');
       largePhoto.hidden = true;
       largeMemory.hidden = true;
       photoFrame.classList.remove('has-memory-image', 'has-memory-text');
-      largeVideo.poster = specialPoster;
-      largeVideo.src = specialVideo;
+      largeVideo.poster = tile.dataset.specialPoster;
+      largeVideo.src = tile.dataset.specialVideo;
       largeVideo.hidden = false;
       viewer.classList.add('open');
       viewer.querySelector('.photo-close').focus();
