@@ -92,6 +92,9 @@
     .photo-frame::before { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(115deg, transparent 25%, #fff9 45%, #fff2 52%, transparent 72%); opacity: .22; transform: translateX(-18%); mix-blend-mode: screen; }
     .photo-frame::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at var(--shine-at, 50% 35%), #fff5, transparent 54%); mix-blend-mode: screen; }
     .photo-frame img { display: block; width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 7px; box-shadow: 0 8px 30px #0008; }
+    .photo-frame video { display: block; width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 7px; background: #000; }
+    .photo-frame.has-memory-text { grid-template-rows: minmax(0, 1fr); }
+    .photo-frame.has-memory-text .memory-message { border-radius: 7px; background: linear-gradient(135deg, #fff, #e7e7e7 48%, #fafafa); }
     .photo-frame [hidden] { display: none !important; }
     .memory-message { display: grid; width: 100%; height: 100%; place-items: center; padding: clamp(28px, 8vw, 100px); color: #171717; text-align: center; font-family: Bangers, Arial, sans-serif; font-size: clamp(2rem, 6vw, 4.6rem); font-weight: 400; line-height: 1.08; overflow-wrap: anywhere; text-shadow: 0 2px 0 #fff8; }
     .memory-message { -webkit-text-stroke: 0; text-shadow: none; }
@@ -133,15 +136,15 @@
     <div class="memories">
       <h2>Un rinconcito para ti</h2>
       <details class="accordion"><summary>Cosas que me recuerdan a ti</summary><div class="accordion-content"><div><div class="gallery-grid" id="memory-grid" aria-label="Cosas que me recuerdan a ti"></div></div></div></details>
-      <details class="accordion"><summary>Cosas que me gustan de ti</summary><div class="accordion-content"><div></div></div></details>
+      <details class="accordion"><summary>Cosas que me gustan de ti</summary><div class="accordion-content"><div><div class="gallery-grid" id="likes-grid" aria-label="Cosas que me gustan de ti"></div></div></div></details>
       <details class="accordion"><summary>Galería de recuerdos</summary><div class="accordion-content"><div><div class="gallery-grid" id="gallery-grid" aria-label="Galería de recuerdos"></div></div></div></details>
       <details class="accordion"><summary>Canciones que me recuerdan a ti</summary><div class="accordion-content"><div><div class="song-list" id="song-list"></div></div></div></details>
-      <details class="accordion"><summary>Especial ✨</summary><div class="accordion-content"><div></div></div></details>
+      <details class="accordion"><summary>Especial ✨</summary><div class="accordion-content"><div><div class="gallery-grid" id="special-grid" aria-label="Vídeo especial"></div></div></div></details>
     </div>
   </section>
   <section class="photo-viewer" id="photo-viewer" role="dialog" aria-modal="true" aria-label="Recuerdo ampliado">
     <button class="photo-scrim" type="button" aria-label="Cerrar fotografía"></button>
-    <div class="photo-frame" id="photo-frame"><img id="photo-large" alt="Recuerdo ampliado"><div class="memory-message" id="memory-large" hidden></div></div>
+    <div class="photo-frame" id="photo-frame"><img id="photo-large" alt="Recuerdo ampliado"><video id="photo-video" controls playsinline preload="none" hidden></video><div class="memory-message" id="memory-large" hidden></div></div>
     <button class="photo-close" type="button" aria-label="Cerrar">×</button>
   </section>
   <script>
@@ -194,9 +197,22 @@
     ];
     const gallery = document.querySelector('#gallery-grid');
     const memoryGrid = document.querySelector('#memory-grid');
+    const likesGrid = document.querySelector('#likes-grid');
+    const specialGrid = document.querySelector('#special-grid');
     const viewer = document.querySelector('#photo-viewer');
     const largePhoto = document.querySelector('#photo-large');
+    const largeVideo = document.querySelector('#photo-video');
     const largeMemory = document.querySelector('#memory-large');
+    const photoFrame = document.querySelector('#photo-frame');
+    const likes = [
+      'La atención que me da',
+      'Sus detalles',
+      'Lo especial que me hace sentir',
+      'Dedica parte de su tiempo y atención a la gente que quiere',
+      'Sus outfits'
+    ];
+    const specialVideo = 'assets/especial.mp4';
+    const specialPoster = 'assets/especial-portada.jpg';
     let lastPhotoTrigger = null;
     gallery.innerHTML = photos.map((src, index) => `
       <button class="gallery-tile" type="button" aria-label="Revelar recuerdo ${index + 1}" data-photo="${src}">
@@ -207,12 +223,24 @@
         <img src="${rememberImages[index]}" alt="" loading="lazy">
         <span class="gallery-question" aria-hidden="true">?</span>
       </button>`).join('');
+    likesGrid.innerHTML = likes.map((like, index) => `
+      <button class="gallery-tile text-memory-tile" type="button" aria-label="Revelar: ${like}" data-like-index="${index}">
+        <span class="gallery-question" aria-hidden="true">?</span>
+      </button>`).join('');
+    specialGrid.innerHTML = `
+      <button class="gallery-tile" type="button" aria-label="Revelar vídeo especial">
+        <img src="${specialPoster}" alt="" loading="lazy"><span class="gallery-question" aria-hidden="true">?</span>
+      </button>`;
 
     function closePhoto() {
       viewer.classList.remove('open');
+      largeVideo.pause();
+      largeVideo.removeAttribute('src');
+      largeVideo.hidden = true;
+      largeVideo.load();
       largePhoto.removeAttribute('src');
       largePhoto.hidden = false;
-      document.querySelector('#photo-frame').classList.remove('has-memory-image');
+      photoFrame.classList.remove('has-memory-image', 'has-memory-text');
       largeMemory.hidden = true;
       largeMemory.textContent = '';
       if (lastPhotoTrigger) lastPhotoTrigger.focus();
@@ -221,10 +249,13 @@
       const tile = event.target.closest('.gallery-tile');
       if (!tile) return;
       lastPhotoTrigger = tile;
+      largeVideo.pause();
+      largeVideo.hidden = true;
       largePhoto.src = tile.dataset.photo;
       largePhoto.alt = `Recuerdo ${Array.from(gallery.children).indexOf(tile) + 1}`;
       largePhoto.hidden = false;
       largeMemory.hidden = true;
+      photoFrame.classList.remove('has-memory-image', 'has-memory-text');
       viewer.classList.add('open');
       viewer.querySelector('.photo-close').focus();
     });
@@ -232,20 +263,50 @@
       const tile = event.target.closest('.text-memory-tile');
       if (!tile) return;
       lastPhotoTrigger = tile;
+      largeVideo.pause();
+      largeVideo.hidden = true;
       largePhoto.src = rememberImages[Number(tile.dataset.memoryIndex)];
       largePhoto.alt = thingsToRemember[Number(tile.dataset.memoryIndex)];
       largePhoto.hidden = false;
       largeMemory.textContent = thingsToRemember[Number(tile.dataset.memoryIndex)];
       largeMemory.hidden = false;
-      document.querySelector('#photo-frame').classList.add('has-memory-image');
+      photoFrame.classList.remove('has-memory-text');
+      photoFrame.classList.add('has-memory-image');
       viewer.classList.add('open');
       viewer.querySelector('.photo-close').focus();
+    });
+    likesGrid.addEventListener('click', event => {
+      const tile = event.target.closest('.text-memory-tile');
+      if (!tile) return;
+      lastPhotoTrigger = tile;
+      largeVideo.pause();
+      largeVideo.hidden = true;
+      largePhoto.removeAttribute('src');
+      largePhoto.hidden = true;
+      largeMemory.textContent = likes[Number(tile.dataset.likeIndex)];
+      largeMemory.hidden = false;
+      photoFrame.classList.remove('has-memory-image');
+      photoFrame.classList.add('has-memory-text');
+      viewer.classList.add('open');
+      viewer.querySelector('.photo-close').focus();
+    });
+    specialGrid.addEventListener('click', () => {
+      lastPhotoTrigger = specialGrid.querySelector('.gallery-tile');
+      largePhoto.removeAttribute('src');
+      largePhoto.hidden = true;
+      largeMemory.hidden = true;
+      photoFrame.classList.remove('has-memory-image', 'has-memory-text');
+      largeVideo.poster = specialPoster;
+      largeVideo.src = specialVideo;
+      largeVideo.hidden = false;
+      viewer.classList.add('open');
+      viewer.querySelector('.photo-close').focus();
+      largeVideo.play().catch(() => {});
     });
     viewer.querySelectorAll('.photo-scrim, .photo-close').forEach(button => button.addEventListener('click', closePhoto));
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && viewer.classList.contains('open')) closePhoto();
     });
-
     const songs = [
       { title: 'Life is a Highway', artist: 'Rascal Flatts', id: '2Fs18NaCDuluPG1DHGw1XG', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02aa6b03f85a0f2cb16e88ec0c', color: '#005a70', preview: 'https://p.scdn.co/mp3-preview/a6cbe30a1f5e86159a88e98f40712f1b5a0bde57' },
       { title: 'Real Gone', artist: 'Sheryl Crow', id: '45dGKmN6jw7PgK6Dw2rEp2', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02a73bb6afa8cb999aafb3c150', color: '#9f0004', preview: 'https://p.scdn.co/mp3-preview/256f8a171a2480f0c916a4510176841755403928' },
