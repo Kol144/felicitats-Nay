@@ -57,6 +57,18 @@
     .accordion[open] .accordion-content { grid-template-rows: 1fr; opacity: 1; }
     .accordion-content > div { overflow: hidden; }
     .accordion-content p { margin: 0; padding: 0 8px 22px 4px; color: #aaa; font-size: .95rem; }
+    .song-list { display: grid; gap: 10px; padding: 0 4px 22px; }
+    .song-card { position: relative; display: flex; align-items: center; gap: 16px; min-height: 82px; padding: 14px 16px; overflow: hidden; border: 1px solid #444; border-radius: 6px; background: #111; transition: border-color .2s, background .2s, transform .2s; }
+    .song-card:hover { border-color: #aaa; background: #181818; transform: translateY(-1px); }
+    .song-link { position: absolute; inset: 0; z-index: 1; }
+    .song-info { position: relative; z-index: 2; min-width: 0; flex: 1; pointer-events: none; }
+    .song-info strong, .song-info span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .song-info strong { font-size: .98rem; font-weight: 500; }
+    .song-info span { margin-top: 5px; color: #aaa; font-size: .85rem; }
+    .preview-button { position: relative; z-index: 3; flex: 0 0 42px; width: 42px; height: 42px; border: 1px solid #777; border-radius: 50%; background: #eee; color: #111; cursor: pointer; }
+    .preview-button:hover:not(:disabled) { background: #fff; transform: scale(1.05); }
+    .preview-button:disabled { background: #222; color: #777; cursor: not-allowed; }
+    .preview-time { position: relative; z-index: 2; color: #999; font-size: .72rem; pointer-events: none; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
   </style>
 </head>
@@ -90,8 +102,9 @@
     <div class="memories">
       <h2>Un rinconcito para ti</h2>
       <details class="accordion"><summary>Cosas que me recuerdan a ti</summary><div class="accordion-content"><div><p>Pequeñas cosas que, de alguna manera, siempre me llevan a ti.</p></div></div></details>
-      <details class="accordion"><summary>Cosas que me gustan de ti</summary><div class="accordion-content"><div><p>Esas cosas que te hacen ser tú y que me alegran los días.</p></div></div></details>
+      <details class="accordion"><summary>Cosas que me gustan de ti</summary><div class="accordion-content"><div></div></div></details>
       <details class="accordion"><summary>Galería de recuerdos</summary><div class="accordion-content"><div><p>Nuestros momentos favoritos, guardados en un mismo lugar.</p></div></div></details>
+      <details class="accordion"><summary>Canciones que me recuerdan a ti</summary><div class="accordion-content"><div><div class="song-list" id="song-list"></div></div></div></details>
     </div>
   </section>
   <script>
@@ -103,6 +116,66 @@
     const error = document.querySelector('#error');
     const welcome = document.querySelector('#welcome-layer');
     const after = document.querySelector('#after');
+
+    const songs = [
+      { title: 'Life is a Highway', artist: 'Rascal Flatts', id: '2Fs18NaCDuluPG1DHGw1XG', preview: 'https://p.scdn.co/mp3-preview/a6cbe30a1f5e86159a88e98f40712f1b5a0bde57' },
+      { title: 'Real Gone', artist: 'Sheryl Crow', id: '45dGKmN6jw7PgK6Dw2rEp2', preview: 'https://p.scdn.co/mp3-preview/256f8a171a2480f0c916a4510176841755403928' },
+      { title: 'Tal Vez', artist: 'Paulo Londra', id: '5jW3rF4URMdK7tO2xjS5EI', preview: 'https://p.scdn.co/mp3-preview/966c77e54ea3110c917766a6b0725ee4e600118c' },
+      { title: 'Chance', artist: 'Paulo Londra', id: '2SJZdZ5DLtlRosJ2xHJJJa', preview: 'https://p.scdn.co/mp3-preview/0af86d8050b03646bc0d576e4e5b61eed3f2031d' },
+      { title: 'Lagrimas De Sal - Kol.Beat REMIX', artist: 'Kol.Beat, IvanGarMir', id: '1S9jhHNTtc83ezOCIwKagk', preview: null },
+      { title: 'Como Camarón', artist: 'Estopa', id: '1VB4sadHjFcFklHcZuoROi', preview: 'https://p.scdn.co/mp3-preview/b7233ebfcd12eda88d3c54b89ad049581d25908b' },
+      { title: 'lady madrizZz', artist: 'céro', id: '1f3oAGS76ZIzOrsxcD2P36', preview: 'https://p.scdn.co/mp3-preview/74d856631ba424150bd0500079641da8316b1318' },
+      { title: 'El Fin del Mundo', artist: 'La La Love You, Axolotes Mexicanos', id: '2cQpVtk5MOSLsGQrgMqT9g', preview: 'https://p.scdn.co/mp3-preview/0da19d5de6b29fa5fe814f1df3d3b48d9224496a' },
+      { title: 'Tiroteo - Remix', artist: 'Marc Seguí, Rauw Alejandro, Pol Granch', id: '4OwhwvKESFtuu06dTgct7i', preview: 'https://p.scdn.co/mp3-preview/f4cb7d8ed9e8db194d56e1f7eba3bb4e11e529a4' },
+      { title: 'Rara Vez', artist: 'Milo j, Taiu', id: '7MVIfkyzuUmQ716j8U7yGR', preview: 'https://p.scdn.co/mp3-preview/803366478f0973a8fb4f981688e2e033e8c1964a' },
+      { title: 'DANCE CRIP', artist: 'Trueno', id: '5NtIprYDaflAuu3Pko0rjR', preview: 'https://p.scdn.co/mp3-preview/8b0cba4a8d1c82f607ec3df5443e710b9ccfba3a' },
+      { title: 'M.A.I', artist: 'Milo j', id: '35ttE4t8lQZA2vuCYDg4G7', preview: 'https://p.scdn.co/mp3-preview/6b3731e90c2a5be79a223174e3781b93af906259' },
+      { title: 'FEEL ME??', artist: 'Trueno', id: '3qukYaYSxIUBcq5UIUIsPf', preview: 'https://p.scdn.co/mp3-preview/faad70d69630e168ed7712a026ee78f453c62bad' },
+      { title: 'Mamichula - con Nicki Nicole', artist: 'Trueno, Nicki Nicole, Bizarrap, Taiu, tatool', id: '0TUW9faHNaBmi89wsYGp9y', preview: 'https://p.scdn.co/mp3-preview/ccd8e8036aad50ed307d43ab5c193536938a98d4' },
+      { title: 'Entre Nosotros', artist: 'Tiago PZK, LIT killah', id: '5LazbgCsa2IskJbPMnI8Qd', preview: 'https://p.scdn.co/mp3-preview/27867c36c4a19ec5e7cadcb855c9a6fc2c605183' },
+      { title: "She Don't Give a Fo", artist: 'Duki, KHEA', id: '03a359wbiUsjN9h6yzXvmS', preview: 'https://p.scdn.co/mp3-preview/ce9640e59c55c495b1ba70c58c0f6943f4afd5aa' },
+      { title: 'Contando Lunares (feat. Cruzzi)', artist: 'Don Patricio, Cruzzi', id: '6uW0PIRcyZLvkoonm763xD', preview: 'https://p.scdn.co/mp3-preview/a701db86b7f0b457d5e2e6e44142ae2470d4dec7' }
+    ];
+
+    const songList = document.querySelector('#song-list');
+    songList.innerHTML = songs.map((song, index) => `
+      <article class="song-card">
+        <a class="song-link" href="https://open.spotify.com/track/${song.id}" target="_blank" rel="noopener noreferrer" aria-label="Abrir ${song.title} en Spotify"></a>
+        <div class="song-info"><strong>${index + 1}. ${song.title}</strong><span>${song.artist}</span></div>
+        <span class="preview-time">${song.preview ? '0:30' : 'Sin previa'}</span>
+        <button class="preview-button" type="button" ${song.preview ? '' : 'disabled'} aria-label="${song.preview ? `Escuchar 30 segundos de ${song.title}` : `Vista previa no disponible para ${song.title}`}" data-index="${index}">${song.preview ? '▶' : '–'}</button>
+      </article>`).join('');
+
+    let previewAudio = null;
+    let previewTimer = null;
+    let previewButton = null;
+    function stopPreview() {
+      clearTimeout(previewTimer);
+      if (previewAudio) { previewAudio.pause(); previewAudio.currentTime = 0; }
+      if (previewButton) { previewButton.textContent = '▶'; previewButton.setAttribute('aria-pressed', 'false'); }
+      previewAudio = null;
+      previewButton = null;
+    }
+    songList.addEventListener('click', async event => {
+      const button = event.target.closest('.preview-button');
+      if (!button || button.disabled) return;
+      if (previewButton === button && previewAudio && !previewAudio.paused) { stopPreview(); return; }
+      stopPreview();
+      const song = songs[Number(button.dataset.index)];
+      previewButton = button;
+      previewAudio = new Audio(song.preview);
+      previewButton.textContent = 'Ⅱ';
+      previewButton.setAttribute('aria-pressed', 'true');
+      previewAudio.addEventListener('ended', stopPreview, { once: true });
+      try {
+        await previewAudio.play();
+        previewTimer = setTimeout(stopPreview, 30000);
+      } catch {
+        stopPreview();
+        button.textContent = '×';
+        setTimeout(() => { button.textContent = '▶'; }, 1800);
+      }
+    });
 
     function setHint(open) {
       hint.classList.toggle('open', open);
