@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080808">
+  <title>Una sorpresa para ti</title>
+  <style>
+    :root { color-scheme: dark; font-family: Arial, Helvetica, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100svh; overflow: hidden; background: #080808; color: #f7f7f7; }
+    button, input { font: inherit; }
+    .stage { min-height: 100svh; display: grid; place-items: center; padding: 24px; position: relative; isolation: isolate; }
+    .backdrop { position: fixed; inset: 0; background: #080808; transition: filter .55s ease, transform .7s ease; z-index: -1; }
+    .stage.is-softened .backdrop { filter: blur(10px) brightness(.55); transform: scale(1.04); }
+    .login { width: min(100%, 390px); padding: 38px 32px 30px; border: 1px solid #464646; border-radius: 8px; background: #111; text-align: center; box-shadow: 0 18px 70px #0009; }
+    .login h1 { margin: 0 0 9px; font-size: 1.2rem; font-weight: 500; }
+    .login p { margin: 0 0 25px; color: #aaa; font-size: .9rem; }
+    .password { width: 100%; height: 48px; padding: 0 14px; border: 1px solid #555; border-radius: 5px; outline: none; background: #090909; color: white; text-align: center; }
+    .password:focus { border-color: #ddd; }
+    .enter, .continue { min-height: 46px; border: 1px solid #eee; border-radius: 5px; background: #f5f5f5; color: #111; cursor: pointer; transition: background .2s, transform .2s; }
+    .enter { width: 100%; margin-top: 12px; }
+    .enter:hover, .continue:hover { background: #d8d8d8; transform: translateY(-1px); }
+    .hint-toggle { margin-top: 20px; padding: 7px 12px; border: 0; background: transparent; color: #bbb; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+    .error { min-height: 1.2em; margin: 12px 0 0 !important; color: #ddd !important; font-size: .82rem !important; }
+    .hint-layer, .welcome-layer { position: fixed; inset: 0; z-index: 3; display: grid; place-items: center; padding: 24px; opacity: 0; visibility: hidden; transition: opacity .35s ease, visibility .35s; }
+    .hint-layer.open, .welcome-layer.open { opacity: 1; visibility: visible; }
+    .scrim { position: absolute; inset: 0; border: 0; background: #0008; backdrop-filter: blur(8px); cursor: default; }
+    .hint-card, .welcome-card { position: relative; width: min(100%, 490px); border: 1px solid #666; border-radius: 8px; background: #101010ed; box-shadow: 0 24px 90px #000b; text-align: center; }
+    .hint-card { padding: 42px 26px; transform: translateY(12px); transition: transform .35s ease; }
+    .hint-layer.open .hint-card { transform: translateY(0); }
+    .hint-card p { margin: 0; font-size: 1.15rem; letter-spacing: .02em; }
+    .close-hint { position: absolute; top: 10px; right: 13px; border: 0; background: none; color: #ddd; font-size: 1.4rem; cursor: pointer; }
+    .welcome-layer { z-index: 5; overflow: hidden; }
+    .welcome-card { min-height: min(570px, 82svh); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: clamp(34px, 8vh, 66px) 24px 25px; overflow: hidden; transform: translateY(34px) scale(.94); opacity: 0; }
+    .welcome-layer.open .welcome-card { animation: reveal .7s cubic-bezier(.2,.8,.2,1) forwards; }
+    @keyframes reveal { to { transform: translateY(0) scale(1); opacity: 1; } }
+    .cake { position: relative; z-index: 1; font-size: clamp(3rem, 10vw, 4.5rem); line-height: 1; filter: grayscale(1); }
+    .welcome-card h2 { position: relative; z-index: 1; margin: 22px 0 0; font-size: clamp(1.35rem, 5vw, 1.9rem); font-weight: 600; }
+    .continue { position: relative; z-index: 2; width: min(100%, 250px); margin-top: auto; }
+    .confetti { position: fixed; inset: -20px 0 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .confetti i { position: absolute; top: -20px; left: var(--x); width: var(--w); height: var(--h); background: var(--c); opacity: .9; transform: rotate(var(--r)); animation: fall var(--d) linear var(--delay) infinite; }
+    .confetti i:nth-child(3n) { border-radius: 50%; }
+    .confetti i:nth-child(4n) { width: 3px; }
+    @keyframes fall { to { transform: translate3d(var(--drift), 110svh, 0) rotate(900deg); } }
+    .after { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; background: #080808; opacity: 0; visibility: hidden; transition: .4s; }
+    .after.show { opacity: 1; visibility: visible; }
+    .after p { color: #888; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <main class="stage" id="stage">
+    <div class="backdrop" aria-hidden="true"></div>
+    <section class="login" aria-labelledby="login-title">
+      <h1 id="login-title">Una sorpresa para ti</h1>
+      <p>Introduce la contraseña para entrar</p>
+      <form id="login-form">
+        <input class="password" id="password" type="password" placeholder="Contraseña" aria-label="Contraseña" autocomplete="off" required>
+        <button class="enter" type="submit">Entrar</button>
+        <p class="error" id="error" aria-live="polite"></p>
+      </form>
+      <button class="hint-toggle" id="hint-toggle" type="button" aria-expanded="false" aria-controls="hint-layer">Ver pista</button>
+    </section>
+  </main>
+  <section class="hint-layer" id="hint-layer" role="dialog" aria-modal="true" aria-label="Pista">
+    <button class="scrim" type="button" aria-label="Cerrar pista"></button>
+    <div class="hint-card"><button class="close-hint" type="button" aria-label="Cerrar">×</button><p>Día que nos conocimos 🤫</p></div>
+  </section>
+  <section class="welcome-layer" id="welcome-layer" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+    <div class="welcome-card">
+      <div class="cake" aria-hidden="true">🎂</div>
+      <h2 id="welcome-title">Felicidades fillaaaa 💗💗💗</h2>
+      <button class="continue" id="continue" type="button">Continuar</button>
+    </div>
+  </section>
+  <section class="after" id="after" aria-live="polite"><p>Lo mejor está por venir.</p></section>
+  <script>
+    const stage = document.querySelector('#stage');
+    const hint = document.querySelector('#hint-layer');
+    const hintToggle = document.querySelector('#hint-toggle');
+    const form = document.querySelector('#login-form');
+    const password = document.querySelector('#password');
+    const error = document.querySelector('#error');
+    const welcome = document.querySelector('#welcome-layer');
+    const after = document.querySelector('#after');
+
+    function setHint(open) {
+      hint.classList.toggle('open', open);
+      stage.classList.toggle('is-softened', open);
+      hintToggle.setAttribute('aria-expanded', String(open));
+      if (open) hint.querySelector('.close-hint').focus();
+      else hintToggle.focus();
+    }
+    hintToggle.addEventListener('click', () => setHint(true));
+    hint.querySelectorAll('.scrim, .close-hint').forEach(button => button.addEventListener('click', () => setHint(false)));
+    document.addEventListener('keydown', event => { if (event.key === 'Escape' && hint.classList.contains('open')) setHint(false); });
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const value = password.value.trim();
+      if (value === '27 de febrero de 2024' || value === '27/2/2024') {
+        error.textContent = '';
+        welcome.classList.add('open');
+        makeConfetti();
+      } else {
+        error.textContent = 'Esa no es. Prueba otra vez.';
+        password.select();
+      }
+    });
+
+    function makeConfetti() {
+      const canvas = document.querySelector('#confetti');
+      if (canvas.childElementCount) return;
+      const colors = ['#fff', '#d9d9d9', '#999', '#555', '#f2f2f2'];
+      const count = 440;
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement('i');
+        piece.style.setProperty('--x', `${Math.random() * 100}%`);
+        piece.style.setProperty('--w', `${3 + Math.random() * 7}px`);
+        piece.style.setProperty('--h', `${6 + Math.random() * 12}px`);
+        piece.style.setProperty('--c', colors[i % colors.length]);
+        piece.style.setProperty('--r', `${Math.random() * 360}deg`);
+        piece.style.setProperty('--d', `${2.8 + Math.random() * 4}s`);
+        piece.style.setProperty('--delay', `${-Math.random() * 6}s`);
+        piece.style.setProperty('--drift', `${Math.random() * 180 - 90}px`);
+        canvas.appendChild(piece);
+      }
+    }
+
+    document.querySelector('#continue').addEventListener('click', () => {
+      welcome.classList.remove('open');
+      after.classList.add('show');
+    });
+  </script>
+</body>
+</html>
