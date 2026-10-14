@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#080808">
+  <meta name="theme-color" content="#e84b08">
   <title>Una sorpresa para ti</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,12 +12,13 @@
     :root { color-scheme: dark; font-synthesis: none; font-family: Bangers, Arial, Helvetica, sans-serif; -webkit-text-stroke: 0; text-shadow: none; }
     .login h1, .hint-card p, .welcome-card h2, .memories h2, .accordion summary { -webkit-text-stroke: 0; text-shadow: none; }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100svh; overflow: hidden; background: #080808; color: #f7f7f7; }
+    body { margin: 0; min-height: 100svh; overflow: hidden; background: #080808 url('assets/fondo-corazon.png') center / cover fixed no-repeat; color: #f7f7f7; }
     button, input { font: inherit; }
     .stage { min-height: 100svh; display: grid; place-items: center; padding: 24px; position: relative; isolation: isolate; }
-    .backdrop { position: fixed; inset: 0; background: #080808; transition: filter .55s ease, transform .7s ease; z-index: -1; }
+    .stage[hidden] { display: none; }
+    .backdrop { position: fixed; inset: 0; background: #08080818; transition: filter .55s ease, transform .7s ease; z-index: -1; }
     .stage.is-softened .backdrop { filter: blur(10px) brightness(.55); transform: scale(1.04); }
-    .login { width: min(100%, 390px); padding: 38px 32px 30px; border: 1px solid #464646; border-radius: 8px; background: #111; text-align: center; box-shadow: 0 18px 70px #0009; }
+    .login { width: min(100%, 390px); padding: 38px 32px 30px; border: 1px solid #ffffff55; border-radius: 8px; background: #111e; text-align: center; box-shadow: 0 18px 70px #0009; backdrop-filter: blur(12px); }
     .login h1 { margin: 0 0 9px; font-size: 1.2rem; font-weight: 400; }
     .login p { margin: 0 0 25px; color: #aaa; font-size: .9rem; }
     .password { width: 100%; height: 48px; padding: 0 14px; border: 1px solid #555; border-radius: 5px; outline: none; background: #090909; color: white; text-align: center; }
@@ -47,11 +48,18 @@
     .confetti i:nth-child(3n) { border-radius: 50%; }
     .confetti i:nth-child(4n) { width: 3px; }
     @keyframes burst { 0% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--r)) scale(.45); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--spin)) scale(1); } }
-    .after { position: fixed; inset: 0; overflow-y: auto; padding: clamp(34px, 8vh, 76px) 24px; background: #080808; opacity: 0; visibility: hidden; transition: opacity .4s ease, visibility .4s; }
+    .after { position: fixed; inset: 0; overflow-y: auto; padding: clamp(34px, 8vh, 76px) 24px; background: transparent; opacity: 0; visibility: hidden; transition: opacity .4s ease, visibility .4s; }
     .after.show { opacity: 1; visibility: visible; }
-    .memories { width: min(100%, 900px); margin: 0 auto; }
+    .birthday-message { width: min(100%, 760px); margin: 0 auto 42px; padding: clamp(24px, 5vw, 42px); border: 1px solid #ffffff66; border-radius: 16px; background: #111d; box-shadow: 0 18px 60px #0008; backdrop-filter: blur(12px); font-family: Arial, Helvetica, sans-serif; font-size: clamp(1rem, 2.5vw, 1.12rem); line-height: 1.75; }
+    .birthday-message p { margin: 0 0 1.2em; }
+    .birthday-message .message-greeting { margin-bottom: .7em; color: #ffacd0; font-family: Bangers, Arial, sans-serif; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; }
+    .birthday-message .message-hearts { margin: .2em 0 0; color: #ff91c4; text-align: center; font-size: clamp(1.2rem, 4vw, 2rem); letter-spacing: .12em; }
+    .message-continue { display: block; margin: 24px auto 0; }
+    .after.show-memories .birthday-message { display: none; }
+    .memories { display: none; width: min(100%, 900px); margin: 0 auto; }
+    .after.show-memories .memories { display: block; }
     .memories h2 { margin: 0 0 30px; text-align: center; font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 400; }
-    .accordion { margin: 0 0 14px; overflow: hidden; border: 1px solid #555; border-radius: 12px; background: #101010; box-shadow: 0 8px 28px #0005; }
+    .accordion { margin: 0 0 14px; overflow: hidden; border: 1px solid #ffffff55; border-radius: 12px; background: #101010d9; box-shadow: 0 8px 28px #0005; backdrop-filter: blur(10px); }
     .accordion summary { position: relative; display: flex; min-height: 104px; align-items: center; list-style: none; padding: 30px 76px 30px 26px; cursor: pointer; font-size: clamp(1.1rem, 3.3vw, 1.45rem); }
     .accordion summary::-webkit-details-marker { display: none; }
     .accordion summary::after { content: '⌄'; position: absolute; right: 25px; top: 50%; transform: translateY(-58%); color: #bbb; font-size: 2rem; line-height: 1; transition: color .2s ease, transform .25s ease; }
@@ -60,6 +68,9 @@
     .accordion[open] .accordion-content { grid-template-rows: 1fr; opacity: 1; }
     .accordion-content > div { overflow: hidden; }
     .accordion-content p { margin: 0; padding: 0 24px 28px; color: #aaa; font-size: 1rem; }
+    .letter-copy { padding: 22px 24px 2px; color: #f1eaf0; font-family: Arial, Helvetica, sans-serif; font-size: clamp(1rem, 2.5vw, 1.1rem); line-height: 1.75; }
+    .letter-copy p { margin: 0 0 1.15em; padding: 0; color: inherit; font: inherit; }
+    .letter-copy .letter-hearts { color: #ff91c4; text-align: center; font-size: clamp(1.2rem, 4vw, 1.8rem); letter-spacing: .12em; }
     .song-list { display: grid; gap: 10px; padding: 0 4px 22px; }
     .song-card { position: relative; display: flex; align-items: center; gap: 14px; min-height: 82px; padding: 12px 14px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--album-color) 65%, #555); border-radius: 6px; background: color-mix(in srgb, var(--album-color) 48%, #101010); transition: border-color .2s, background .2s, transform .2s; }
     .song-card:hover { border-color: color-mix(in srgb, var(--album-color) 80%, #fff); background: color-mix(in srgb, var(--album-color) 58%, #101010); transform: translateY(-1px); }
@@ -133,13 +144,34 @@
     </div>
   </section>
   <section class="after" id="after" aria-label="Recuerdos">
+    <article class="birthday-message" aria-label="Mensaje de cumpleaños para Nay">
+      <p class="message-greeting">Que pasa filla.</p>
+      <p>Cada día asimilo menos que crezcas cojones, aun recuerdo las noches jodidas, las charlas eternas y llamadas sin fin jugando a roblox en las que siempre estaba el pensamiento de:</p>
+      <p>"Y que día veré yo a est@ random".</p>
+      <p>Al final se hizo realidad, un 10 de agosto que guardo con cariño la imagen de la noche de pineda de mar, con la púa de efecto pasillo, la notita con el mini Hopper, la flor que me pusiste en la oreja que no me quite en todo el día y chonky (El cerdo de <strong>minecraft</strong> del miniso).</p>
+      <p>Me jode mucho que el diccionario no tenga suficientes sinónimos de "gracias" para yo poder expresar la gratitud que tengo y sinónimos de "alegria" y "cariño" para expresar como me haces sentir.</p>
+      <p>Felices 16 cumpleaños Nay.</p>
+      <p>T´estimo moltisisisisisisisisisisisisisisisisisisisisisisimmmm</p>
+      <p class="message-hearts">💗💗💗💗💗💗💗💗💗💗💗💗</p>
+      <button class="continue message-continue" id="show-memories" type="button">Continuar</button>
+    </article>
     <div class="memories">
-      <h2>Un rinconcito para ti</h2>
+      <h2 tabindex="-1">Un rinconcito para ti</h2>
       <details class="accordion"><summary>Cosas que me recuerdan a ti</summary><div class="accordion-content"><div><div class="gallery-grid" id="memory-grid" aria-label="Cosas que me recuerdan a ti"></div></div></div></details>
       <details class="accordion"><summary>Cosas que me gustan de ti</summary><div class="accordion-content"><div><div class="gallery-grid" id="likes-grid" aria-label="Cosas que me gustan de ti"></div></div></div></details>
       <details class="accordion"><summary>Galería de recuerdos</summary><div class="accordion-content"><div><div class="gallery-grid" id="gallery-grid" aria-label="Galería de recuerdos"></div></div></div></details>
       <details class="accordion"><summary>Canciones que me recuerdan a ti</summary><div class="accordion-content"><div><div class="song-list" id="song-list"></div></div></div></details>
       <details class="accordion"><summary>Especial ✨</summary><div class="accordion-content"><div><div class="gallery-grid" id="special-grid" aria-label="Vídeo especial"></div></div></div></details>
+      <details class="accordion"><summary>Mensaje ✉️</summary><div class="accordion-content"><div><div class="letter-copy">
+        <p>Que pasa filla.</p>
+        <p>Cada día asimilo menos que crezcas cojones, aun recuerdo las noches jodidas, las charlas eternas y llamadas sin fin jugando a roblox en las que siempre estaba el pensamiento de:</p>
+        <p>"Y que día veré yo a est@ random".</p>
+        <p>Al final se hizo realidad, un 10 de agosto que guardo con cariño la imagen de la noche de pineda de mar, con la púa de efecto pasillo, la notita con el mini Hopper, la flor que me pusiste en la oreja que no me quite en todo el día y chonky (El cerdo de <strong>minecraft</strong> del miniso).</p>
+        <p>Me jode mucho que el diccionario no tenga suficientes sinónimos de "gracias" para yo poder expresar la gratitud que tengo y sinónimos de "alegria" y "cariño" para expresar como me haces sentir.</p>
+        <p>Felices 16 cumpleaños Nay.</p>
+        <p>T´estimo moltisisisisisisisisisisisisisisisisisisisisisisimmmm</p>
+        <p class="letter-hearts">💗💗💗💗💗💗💗💗💗💗💗💗</p>
+      </div></div></div></details>
     </div>
   </section>
   <section class="photo-viewer" id="photo-viewer" role="dialog" aria-modal="true" aria-label="Recuerdo ampliado">
@@ -213,7 +245,13 @@
     ];
     const specialVideos = [
       { src: 'assets/especial.mp4', poster: 'assets/especial-portada.jpg', label: 'Vídeo especial' },
-      { src: 'assets/especial-whatsapp.mp4', poster: 'assets/especial-whatsapp-portada.jpg', label: 'Vídeo especial 2' }
+      { src: 'assets/especial-whatsapp.mp4', poster: 'assets/especial-whatsapp-portada.jpg', label: 'Vídeo especial 2' },
+      { src: 'assets/VID_20261014_133204_953.mp4', poster: 'assets/especial-portada.jpg', label: 'Vídeo especial 3' },
+      { src: 'assets/VID_20261014_133206_849_1.mp4', poster: 'assets/especial-portada.jpg', label: 'Vídeo especial 4' },
+      { src: 'assets/VID_20261014_133638_988.mp4', poster: 'assets/especial-portada.jpg', label: 'Vídeo especial 5' },
+      { src: 'assets/VID_20261014_133214_384.mp4', poster: 'assets/especial-portada.jpg', label: 'Vídeo especial 6' },
+      { src: 'assets/VID_20261014_133211_931.mp4', poster: 'assets/especial-portada.jpg', label: 'Vídeo especial 7' },
+      { src: 'assets/VID_20261014_133209_269.mp4', poster: 'assets/especial-portada.jpg', label: 'Vídeo especial 8' }
     ];
     let lastPhotoTrigger = null;
     gallery.innerHTML = photos.map((src, index) => `
@@ -351,6 +389,7 @@
       previewAudio = null;
       previewButton = null;
     }
+    largeVideo.addEventListener('play', stopPreview);
     songList.addEventListener('click', async event => {
       const button = event.target.closest('.preview-button');
       if (!button || button.disabled) return;
@@ -419,7 +458,15 @@
 
     document.querySelector('#continue').addEventListener('click', () => {
       welcome.classList.remove('open');
+      stage.hidden = true;
       after.classList.add('show');
+      document.querySelector('#show-memories').focus();
+    });
+
+    document.querySelector('#show-memories').addEventListener('click', () => {
+      after.classList.add('show-memories');
+      after.scrollTop = 0;
+      document.querySelector('.memories h2').focus();
     });
   </script>
 </body>
