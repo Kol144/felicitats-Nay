@@ -7,7 +7,7 @@
   <title>Una sorpresa para ti</title>
   <style>
     @font-face { font-family: Horizon; src: url('Horizon.otf') format('opentype'); font-display: swap; }
-    :root { color-scheme: dark; font-family: Horizon, Arial, Helvetica, sans-serif; -webkit-text-stroke: 2px currentColor; text-shadow: 0 0 1.5px currentColor, 0 0 3px currentColor; }
+    :root { color-scheme: dark; font-family: Horizon, Arial, Helvetica, sans-serif; -webkit-text-stroke: .08em currentColor; text-shadow: 0 0 .06em currentColor, 0 0 .12em currentColor; }
     * { box-sizing: border-box; }
     body { margin: 0; min-height: 100svh; overflow: hidden; background: #080808; color: #f7f7f7; }
     button, input { font: inherit; }
@@ -76,7 +76,7 @@
     .gallery-tile img { position: absolute; inset: -12px; width: calc(100% + 24px); height: calc(100% + 24px); object-fit: cover; filter: blur(17px) brightness(.6); transform: scale(1.08); }
     .text-memory-tile img { filter: blur(17px) brightness(.62); }
     .gallery-tile::after { content: ''; position: absolute; inset: 0; background: linear-gradient(145deg, #fff1, transparent 46%, #0007); }
-    .gallery-question { position: relative; z-index: 1; color: #fff; font-size: clamp(3.5rem, 11vw, 6rem); font-weight: 700; text-shadow: 0 3px 24px #000c; transition: transform .25s ease; }
+    .gallery-question { position: relative; z-index: 1; color: #fff; font-size: clamp(3.5rem, 11vw, 6rem); font-weight: 700; -webkit-text-stroke: .08em currentColor; text-shadow: 0 0 .08em currentColor, 0 0 .16em currentColor, 0 3px 24px #000c; transition: transform .25s ease; }
     .gallery-tile:hover .gallery-question { transform: scale(1.12) rotate(-5deg); }
     .text-memory-tile { background: #171717; }
     .text-memory-tile::before { content: ''; position: absolute; inset: -15px; background: linear-gradient(135deg, #fafafa55, #81818166 45%, #292929); filter: blur(18px); transform: scale(1.08); }
