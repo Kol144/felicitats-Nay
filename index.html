@@ -58,9 +58,10 @@
     .accordion-content > div { overflow: hidden; }
     .accordion-content p { margin: 0; padding: 0 8px 22px 4px; color: #aaa; font-size: .95rem; }
     .song-list { display: grid; gap: 10px; padding: 0 4px 22px; }
-    .song-card { position: relative; display: flex; align-items: center; gap: 16px; min-height: 82px; padding: 14px 16px; overflow: hidden; border: 1px solid #444; border-radius: 6px; background: #111; transition: border-color .2s, background .2s, transform .2s; }
-    .song-card:hover { border-color: #aaa; background: #181818; transform: translateY(-1px); }
+    .song-card { position: relative; display: flex; align-items: center; gap: 14px; min-height: 82px; padding: 12px 14px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--album-color) 65%, #555); border-radius: 6px; background: color-mix(in srgb, var(--album-color) 48%, #101010); transition: border-color .2s, background .2s, transform .2s; }
+    .song-card:hover { border-color: color-mix(in srgb, var(--album-color) 80%, #fff); background: color-mix(in srgb, var(--album-color) 58%, #101010); transform: translateY(-1px); }
     .song-link { position: absolute; inset: 0; z-index: 1; }
+    .song-cover { position: relative; z-index: 2; flex: 0 0 56px; width: 56px; aspect-ratio: 1; border-radius: 4px; object-fit: cover; pointer-events: none; }
     .song-info { position: relative; z-index: 2; min-width: 0; flex: 1; pointer-events: none; }
     .song-info strong, .song-info span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .song-info strong { font-size: .98rem; font-weight: 500; }
@@ -118,29 +119,30 @@
     const after = document.querySelector('#after');
 
     const songs = [
-      { title: 'Life is a Highway', artist: 'Rascal Flatts', id: '2Fs18NaCDuluPG1DHGw1XG', preview: 'https://p.scdn.co/mp3-preview/a6cbe30a1f5e86159a88e98f40712f1b5a0bde57' },
-      { title: 'Real Gone', artist: 'Sheryl Crow', id: '45dGKmN6jw7PgK6Dw2rEp2', preview: 'https://p.scdn.co/mp3-preview/256f8a171a2480f0c916a4510176841755403928' },
-      { title: 'Tal Vez', artist: 'Paulo Londra', id: '5jW3rF4URMdK7tO2xjS5EI', preview: 'https://p.scdn.co/mp3-preview/966c77e54ea3110c917766a6b0725ee4e600118c' },
-      { title: 'Chance', artist: 'Paulo Londra', id: '2SJZdZ5DLtlRosJ2xHJJJa', preview: 'https://p.scdn.co/mp3-preview/0af86d8050b03646bc0d576e4e5b61eed3f2031d' },
-      { title: 'Lagrimas De Sal - Kol.Beat REMIX', artist: 'Kol.Beat, IvanGarMir', id: '1S9jhHNTtc83ezOCIwKagk', preview: null },
-      { title: 'Como Camarón', artist: 'Estopa', id: '1VB4sadHjFcFklHcZuoROi', preview: 'https://p.scdn.co/mp3-preview/b7233ebfcd12eda88d3c54b89ad049581d25908b' },
-      { title: 'lady madrizZz', artist: 'céro', id: '1f3oAGS76ZIzOrsxcD2P36', preview: 'https://p.scdn.co/mp3-preview/74d856631ba424150bd0500079641da8316b1318' },
-      { title: 'El Fin del Mundo', artist: 'La La Love You, Axolotes Mexicanos', id: '2cQpVtk5MOSLsGQrgMqT9g', preview: 'https://p.scdn.co/mp3-preview/0da19d5de6b29fa5fe814f1df3d3b48d9224496a' },
-      { title: 'Tiroteo - Remix', artist: 'Marc Seguí, Rauw Alejandro, Pol Granch', id: '4OwhwvKESFtuu06dTgct7i', preview: 'https://p.scdn.co/mp3-preview/f4cb7d8ed9e8db194d56e1f7eba3bb4e11e529a4' },
-      { title: 'Rara Vez', artist: 'Milo j, Taiu', id: '7MVIfkyzuUmQ716j8U7yGR', preview: 'https://p.scdn.co/mp3-preview/803366478f0973a8fb4f981688e2e033e8c1964a' },
-      { title: 'DANCE CRIP', artist: 'Trueno', id: '5NtIprYDaflAuu3Pko0rjR', preview: 'https://p.scdn.co/mp3-preview/8b0cba4a8d1c82f607ec3df5443e710b9ccfba3a' },
-      { title: 'M.A.I', artist: 'Milo j', id: '35ttE4t8lQZA2vuCYDg4G7', preview: 'https://p.scdn.co/mp3-preview/6b3731e90c2a5be79a223174e3781b93af906259' },
-      { title: 'FEEL ME??', artist: 'Trueno', id: '3qukYaYSxIUBcq5UIUIsPf', preview: 'https://p.scdn.co/mp3-preview/faad70d69630e168ed7712a026ee78f453c62bad' },
-      { title: 'Mamichula - con Nicki Nicole', artist: 'Trueno, Nicki Nicole, Bizarrap, Taiu, tatool', id: '0TUW9faHNaBmi89wsYGp9y', preview: 'https://p.scdn.co/mp3-preview/ccd8e8036aad50ed307d43ab5c193536938a98d4' },
-      { title: 'Entre Nosotros', artist: 'Tiago PZK, LIT killah', id: '5LazbgCsa2IskJbPMnI8Qd', preview: 'https://p.scdn.co/mp3-preview/27867c36c4a19ec5e7cadcb855c9a6fc2c605183' },
-      { title: "She Don't Give a Fo", artist: 'Duki, KHEA', id: '03a359wbiUsjN9h6yzXvmS', preview: 'https://p.scdn.co/mp3-preview/ce9640e59c55c495b1ba70c58c0f6943f4afd5aa' },
-      { title: 'Contando Lunares (feat. Cruzzi)', artist: 'Don Patricio, Cruzzi', id: '6uW0PIRcyZLvkoonm763xD', preview: 'https://p.scdn.co/mp3-preview/a701db86b7f0b457d5e2e6e44142ae2470d4dec7' }
+      { title: 'Life is a Highway', artist: 'Rascal Flatts', id: '2Fs18NaCDuluPG1DHGw1XG', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02aa6b03f85a0f2cb16e88ec0c', color: '#005a70', preview: 'https://p.scdn.co/mp3-preview/a6cbe30a1f5e86159a88e98f40712f1b5a0bde57' },
+      { title: 'Real Gone', artist: 'Sheryl Crow', id: '45dGKmN6jw7PgK6Dw2rEp2', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02a73bb6afa8cb999aafb3c150', color: '#9f0004', preview: 'https://p.scdn.co/mp3-preview/256f8a171a2480f0c916a4510176841755403928' },
+      { title: 'Tal Vez', artist: 'Paulo Londra', id: '5jW3rF4URMdK7tO2xjS5EI', cover: 'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02cf7e54f668d6a31dd6566f24', color: '#9e0019', preview: 'https://p.scdn.co/mp3-preview/966c77e54ea3110c917766a6b0725ee4e600118c' },
+      { title: 'Chance', artist: 'Paulo Londra', id: '2SJZdZ5DLtlRosJ2xHJJJa', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e029a89a0d1331e9281733ee033', color: '#9f0000', preview: 'https://p.scdn.co/mp3-preview/0af86d8050b03646bc0d576e4e5b61eed3f2031d' },
+      { title: 'Lagrimas De Sal - Kol.Beat REMIX', artist: 'Kol.Beat, IvanGarMir', id: '1S9jhHNTtc83ezOCIwKagk', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e028b08fa5838e0dd974a3092b2', color: '#535353', preview: null },
+      { title: 'Como Camarón', artist: 'Estopa', id: '1VB4sadHjFcFklHcZuoROi', cover: 'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e021ed1c8aff132830890f91faa', color: '#614a70', preview: 'https://p.scdn.co/mp3-preview/b7233ebfcd12eda88d3c54b89ad049581d25908b' },
+      { title: 'lady madrizZz', artist: 'céro', id: '1f3oAGS76ZIzOrsxcD2P36', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e026eb7f167c85a60c4538a1fd3', color: '#664c59', preview: 'https://p.scdn.co/mp3-preview/74d856631ba424150bd0500079641da8316b1318' },
+      { title: 'El Fin del Mundo', artist: 'La La Love You, Axolotes Mexicanos', id: '2cQpVtk5MOSLsGQrgMqT9g', cover: 'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e022551fc7fe5cabe6231f72546', color: '#535353', preview: 'https://p.scdn.co/mp3-preview/0da19d5de6b29fa5fe814f1df3d3b48d9224496a' },
+      { title: 'Tiroteo - Remix', artist: 'Marc Seguí, Rauw Alejandro, Pol Granch', id: '4OwhwvKESFtuu06dTgct7i', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02cf206ae0c2100b85d30ab24c', color: '#940073', preview: 'https://p.scdn.co/mp3-preview/f4cb7d8ed9e8db194d56e1f7eba3bb4e11e529a4' },
+      { title: 'Rara Vez', artist: 'Milo j, Taiu', id: '7MVIfkyzuUmQ716j8U7yGR', cover: 'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02591c9792502c7e80778de64b', color: '#9f0008', preview: 'https://p.scdn.co/mp3-preview/803366478f0973a8fb4f981688e2e033e8c1964a' },
+      { title: 'DANCE CRIP', artist: 'Trueno', id: '5NtIprYDaflAuu3Pko0rjR', cover: 'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e028ff8d1f8f3090655cd1eba02', color: '#382828', preview: 'https://p.scdn.co/mp3-preview/8b0cba4a8d1c82f607ec3df5443e710b9ccfba3a' },
+      { title: 'M.A.I', artist: 'Milo j', id: '35ttE4t8lQZA2vuCYDg4G7', cover: 'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e0298ee8fad7a30ff328b97d874', color: '#205088', preview: 'https://p.scdn.co/mp3-preview/6b3731e90c2a5be79a223174e3781b93af906259' },
+      { title: 'FEEL ME??', artist: 'Trueno', id: '3qukYaYSxIUBcq5UIUIsPf', cover: 'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e028ff8d1f8f3090655cd1eba02', color: '#382828', preview: 'https://p.scdn.co/mp3-preview/faad70d69630e168ed7712a026ee78f453c62bad' },
+      { title: 'Mamichula - con Nicki Nicole', artist: 'Trueno, Nicki Nicole, Bizarrap, Taiu, tatool', id: '0TUW9faHNaBmi89wsYGp9y', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02f4483d4440a89a2cab3b5141', color: '#00519c', preview: 'https://p.scdn.co/mp3-preview/ccd8e8036aad50ed307d43ab5c193536938a98d4' },
+      { title: 'Entre Nosotros', artist: 'Tiago PZK, LIT killah', id: '5LazbgCsa2IskJbPMnI8Qd', cover: 'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02e98263510e17ae1e2daf45cf', color: '#005976', preview: 'https://p.scdn.co/mp3-preview/27867c36c4a19ec5e7cadcb855c9a6fc2c605183' },
+      { title: "She Don't Give a Fo", artist: 'Duki, KHEA', id: '03a359wbiUsjN9h6yzXvmS', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e023ba92b218fbc97d244235a21', color: '#900850', preview: 'https://p.scdn.co/mp3-preview/ce9640e59c55c495b1ba70c58c0f6943f4afd5aa' },
+      { title: 'Contando Lunares (feat. Cruzzi)', artist: 'Don Patricio, Cruzzi', id: '6uW0PIRcyZLvkoonm763xD', cover: 'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02dd84a038a86a6f50dbae8eb8', color: '#960067', preview: 'https://p.scdn.co/mp3-preview/a701db86b7f0b457d5e2e6e44142ae2470d4dec7' }
     ];
 
     const songList = document.querySelector('#song-list');
     songList.innerHTML = songs.map((song, index) => `
       <article class="song-card">
         <a class="song-link" href="https://open.spotify.com/track/${song.id}" target="_blank" rel="noopener noreferrer" aria-label="Abrir ${song.title} en Spotify"></a>
+        <img class="song-cover" src="${song.cover}" alt="Portada de ${song.title}" loading="lazy">
         <div class="song-info"><strong>${index + 1}. ${song.title}</strong><span>${song.artist}</span></div>
         <span class="preview-time">${song.preview ? '0:30' : 'Sin previa'}</span>
         <button class="preview-button" type="button" ${song.preview ? '' : 'disabled'} aria-label="${song.preview ? `Escuchar 30 segundos de ${song.title}` : `Vista previa no disponible para ${song.title}`}" data-index="${index}">${song.preview ? '▶' : '–'}</button>
